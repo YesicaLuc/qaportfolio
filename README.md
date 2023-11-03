@@ -9,8 +9,8 @@ I am a passionate Manual QA professional with expertise in quality assurance and
 Puedes encontrar mi CV ....
 
 ## Skills
-- **Software Testing: Planning, executing, and tracking manual test cases.
-- **Tools: TestRail, Jira, Postman, tools for creating mind maps and diagrams.
+- **Software Testing:** Planning, executing, and tracking manual test cases.
+- **Tools:** TestRail, Jira, Postman, tools for creating mind maps and diagrams.
 - **Documentation: Creating detailed bug reports and technical documentation.
 - **Collaboration: Teamwork and effective communication with developers and fellow team members.
 
@@ -25,10 +25,10 @@ Puedes encontrar mi CV ....
 
 ## Examples of My Work
 Here are some examples of my work:
-- **Test Cases: Detailed examples of test cases in TestRail.
-- **Bug Reports: Comprehensive bug reports in Jira.
-- **Mindmaps and Diagrams: Flowcharts and mind maps for test planning.
-- **Postman Scripts: API testing scripts created in Postman.
+- **Test Cases:** Detailed examples of test cases in TestRail.
+- **Bug Reports:** Comprehensive bug reports in Jira.
+- **Mindmaps and Diagrams:** Flowcharts and mind maps for test planning.
+- **Postman Scripts:** API testing scripts created in Postman.
   
 ## Contact
 LinkedIn: (https://www.linkedin.com/in/yesica-lucero)
