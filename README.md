@@ -27,7 +27,7 @@ Puedes encontrar mi CV ....
 Here are some examples of my work:
 - **Test Cases:** Detailed examples of test cases in TestRail.
 - **Bug Reports:** Comprehensive bug reports in Jira can be watched on this repository's [(Wiki)](https://github.com/YesicaLuc/qaportfolio/wiki).
-- **Some Codes:** You can see some python codes of mine here [(pyCode)](https://github.com/YesicaLuc/qaportfolio/edit/YesicaLuc-pyCode/README.md)
+- **Some Codes:** You can see some python codes of mine here [(pyCode)](https://github.com/YesicaLuc/qaportfolio/tree/YesicaLuc-pyCode)
 - **Mindmaps and Diagrams:** Flowcharts and mind maps for test planning.
 - **Postman Scripts:** API testing scripts created in Postman.
   
