@@ -29,7 +29,7 @@ Here are some examples of my work:
 - **Bug Reports:** Comprehensive bug reports in Jira can be watched on this repository's [(Wiki)](https://github.com/YesicaLuc/qaportfolio/wiki).
 - **Some Codes:** You can see some python codes of mine here [(pyCode)](https://github.com/YesicaLuc/qaportfolio/tree/YesicaLuc-pyCode)
 - **Mindmaps and Diagrams:** Flowcharts and mind maps for test planning.
-- **Postman Scripts:** API testing scripts created in Postman.
+- **Postman Scripts:** API testing scripts created in Postman. [(Wiki)](https://github.com/YesicaLuc/qaportfolio/wiki/Postman-Testing-Example)
   
 ## Contact
 LinkedIn: (https://www.linkedin.com/in/yesica-lucero)
