@@ -33,6 +33,7 @@ Here are some examples of my work:
   
 ## Contact
 LinkedIn: (https://www.linkedin.com/in/yesica-lucero)
+
 Email: yesilucerov@gmail.com
 
 Thank you for visiting my portfolio! Feel free to reach out if you have any questions or if you are interested in collaboration.
