@@ -3,7 +3,7 @@
 Welcome to my QA Manual Portfolio! 👋
 
 ## About Me
-I am a passionate Manual QA professional with expertise in quality assurance and software testing. My approach is grounded in meticulousness and attention to detail, ensuring products meet the highest quality standards. Currently, I am pursuing a degree in Software Development, allowing me to merge my technical skills with my testing experience.
+I am a passionate Manual QA professional with expertise in quality assurance and software testing. I have a strong background in UX/UI. My approach is grounded in meticulousness and attention to detail, ensuring products meet the highest quality standards. Currently, I am pursuing a degree in Software Development, allowing me to merge my technical skills with my testing experience.
 
 ## Curriculum Vitae (CV)
 Puedes encontrar mi CV ....
@@ -11,8 +11,8 @@ Puedes encontrar mi CV ....
 ## Skills
 - **Software Testing:** Planning, executing, and tracking manual test cases.
 - **Tools:** TestRail, Jira, Postman, tools for creating mind maps and diagrams.
-- **Documentation: Creating detailed bug reports and technical documentation.
-- **Collaboration: Teamwork and effective communication with developers and fellow team members.
+- **Documentation:** Creating detailed bug reports and technical documentation.
+- **Collaboration:** Teamwork and effective communication with developers and fellow team members.
 
 ## Tools
 - **Test Management:** TestRail, Zephyr.
