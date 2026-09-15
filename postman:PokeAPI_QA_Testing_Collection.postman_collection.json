@@ -1,0 +1,504 @@
+{
+  "info": {
+    "_postman_id": "9f2a2e21-9960-4159-bcf8-5c97236943e9",
+    "name": "PokeAPI – QA API Testing Examples",
+    "description": "Example Postman collection built against the public PokéAPI (https://pokeapi.co/) to demonstrate API testing practice: status codes, response time, headers, field-level assertions, pagination contracts, negative/error-path tests, cross-resource consistency, and formal JSON-schema validation.\n\nAuthor: Yesica Lucero — github.com/YesicaLuc/qaportfolio\n\nHow to use: import this collection into Postman (or run with `newman run`), then use the built-in Collection Runner to execute all requests and see every pm.test assertion pass/fail in one report.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Pokémon",
+      "description": "Core resource endpoint: single lookups, pagination, negative tests, and schema validation.",
+      "item": [
+        {
+          "name": "GET Pokémon by name (pikachu)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response time is under 1000ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type header is application/json', function () {",
+                  "    pm.response.to.have.header('Content-Type');",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('Name matches requested resource', function () {",
+                  "    pm.expect(jsonData.name).to.eql('pikachu');",
+                  "});",
+                  "",
+                  "pm.test('Response has expected top-level fields', function () {",
+                  "    ['id', 'name', 'height', 'weight', 'base_experience', 'types', 'abilities', 'stats', 'sprites'].forEach(function (field) {",
+                  "        pm.expect(jsonData).to.have.property(field);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Stats array has exactly 6 entries (hp, atk, def, spa, spd, speed)', function () {",
+                  "    pm.expect(jsonData.stats).to.be.an('array').with.lengthOf(6);",
+                  "});",
+                  "",
+                  "pm.test('Types array has at least one entry with a valid structure', function () {",
+                  "    pm.expect(jsonData.types).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(jsonData.types[0]).to.have.nested.property('type.name');",
+                  "});",
+                  "",
+                  "pm.test('Sprites include a front_default image URL', function () {",
+                  "    pm.expect(jsonData.sprites.front_default).to.be.a('string').and.satisfy(function (url) {",
+                  "        return url.startsWith('https://');",
+                  "    });",
+                  "});",
+                  "",
+                  "// Save id for the next request in the folder, so it can cross-check by id too",
+                  "pm.collectionVariables.set('lastPokemonId', jsonData.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon/pikachu",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon",
+                "pikachu"
+              ]
+            },
+            "description": "Happy-path GET by name. Validates status, headers, response time, and the response schema/fields for a known Pokémon."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon by id (25) and cross-check name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('id in body matches id requested in the URL', function () {",
+                  "    pm.expect(jsonData.id).to.eql(25);",
+                  "});",
+                  "",
+                  "pm.test('Looking up by id (25) resolves to the same Pokémon as by name (pikachu)', function () {",
+                  "    pm.expect(jsonData.name).to.eql('pikachu');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon/25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon",
+                "25"
+              ]
+            },
+            "description": "Cross-checks that looking up the same resource by id and by name returns consistent data — catches inconsistencies between the two lookup paths."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon list — first page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('Pagination fields are present', function () {",
+                  "    ['count', 'next', 'previous', 'results'].forEach(function (field) {",
+                  "        pm.expect(jsonData).to.have.property(field);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Returns exactly `limit` results', function () {",
+                  "    pm.expect(jsonData.results).to.have.lengthOf(20);",
+                  "});",
+                  "",
+                  "pm.test('previous is null on the first page', function () {",
+                  "    pm.expect(jsonData.previous).to.be.null;",
+                  "});",
+                  "",
+                  "pm.test('next page URL carries the correct offset', function () {",
+                  "    pm.expect(jsonData.next).to.include('offset=20');",
+                  "});",
+                  "",
+                  "pm.test('Each result has a name and a resource URL', function () {",
+                  "    jsonData.results.forEach(function (item) {",
+                  "        pm.expect(item).to.have.property('name');",
+                  "        pm.expect(item).to.have.property('url');",
+                  "    });",
+                  "});",
+                  "",
+                  "// Save this page's names so the next request can confirm page 2 doesn't repeat them",
+                  "pm.collectionVariables.set('firstPageNames', JSON.stringify(jsonData.results.map(r => r.name)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon?limit=20&offset=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Validates pagination contract on a list endpoint: page size, previous/next links, and shape of each list item."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon list — second page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('previous page URL points back to offset=0', function () {",
+                  "    pm.expect(jsonData.previous).to.include('offset=0');",
+                  "});",
+                  "",
+                  "pm.test('Second page returns a different result set than the first page', function () {",
+                  "    const firstNames = pm.collectionVariables.get('firstPageNames');",
+                  "    if (firstNames) {",
+                  "        const overlap = jsonData.results.map(r => r.name).filter(n => JSON.parse(firstNames).includes(n));",
+                  "        pm.expect(overlap).to.have.lengthOf(0);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon?limit=20&offset=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Confirms offset-based pagination actually advances the window instead of repeating the first page."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon — not found (invalid name)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404 for a nonexistent Pokémon', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Response time is under 1000ms even for the error path', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon/notarealpokemon123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon",
+                "notarealpokemon123"
+              ]
+            },
+            "description": "Negative test: the API should fail predictably (404, not a 500 or a malformed 200) when asked for a resource that doesn't exist."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon — not found (out-of-range id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404 for an out-of-range id', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon",
+                "999999"
+              ]
+            },
+            "description": "Negative test with a numeric id far outside the valid range, complementing the invalid-name case above."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Pokémon — JSON schema validation (charizard)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const schema = {",
+                  "    type: 'object',",
+                  "    required: ['id', 'name', 'height', 'weight', 'types', 'abilities', 'stats', 'sprites'],",
+                  "    properties: {",
+                  "        id: { type: 'number' },",
+                  "        name: { type: 'string' },",
+                  "        height: { type: 'number' },",
+                  "        weight: { type: 'number' },",
+                  "        types: {",
+                  "            type: 'array',",
+                  "            items: {",
+                  "                type: 'object',",
+                  "                required: ['slot', 'type'],",
+                  "            },",
+                  "        },",
+                  "        stats: {",
+                  "            type: 'array',",
+                  "            items: {",
+                  "                type: 'object',",
+                  "                required: ['base_stat', 'effort', 'stat'],",
+                  "            },",
+                  "        },",
+                  "    },",
+                  "};",
+                  "",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response matches the expected Pokémon JSON schema', function () {",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pokemon/charizard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pokemon",
+                "charizard"
+              ]
+            },
+            "description": "Formal JSON-schema validation of the response contract, as a second layer on top of the field-by-field checks in the earlier requests — useful to catch structural regressions (missing/renamed fields, wrong types)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Types",
+      "description": "Relational endpoint example — a type resource that lists related Pokémon.",
+      "item": [
+        {
+          "name": "GET Type by name (electric)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('Type name matches request', function () {",
+                  "    pm.expect(jsonData.name).to.eql('electric');",
+                  "});",
+                  "",
+                  "pm.test('pokemon array is present and not empty', function () {",
+                  "    pm.expect(jsonData.pokemon).to.be.an('array').that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Each entry references a pokemon with name and url', function () {",
+                  "    const sample = jsonData.pokemon[0];",
+                  "    pm.expect(sample).to.have.nested.property('pokemon.name');",
+                  "    pm.expect(sample).to.have.nested.property('pokemon.url');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/type/electric",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "type",
+                "electric"
+              ]
+            },
+            "description": "Checks a relational endpoint (a type lists all Pokémon of that type) rather than a single-resource endpoint."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Abilities",
+      "description": "Simpler resource endpoint, for contrast.",
+      "item": [
+        {
+          "name": "GET Ability by id (1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('id matches requested resource', function () {",
+                  "    pm.expect(jsonData.id).to.eql(1);",
+                  "});",
+                  "",
+                  "pm.test('Core fields have the expected types', function () {",
+                  "    pm.expect(jsonData.name).to.be.a('string');",
+                  "    pm.expect(jsonData.is_main_series).to.be.a('boolean');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ability/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ability",
+                "1"
+              ]
+            },
+            "description": "Basic single-resource validation on a smaller/simpler endpoint, for contrast with the richer /pokemon response."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://pokeapi.co/api/v2",
+      "type": "string"
+    },
+    {
+      "key": "lastPokemonId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "firstPageNames",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
